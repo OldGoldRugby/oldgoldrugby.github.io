@@ -1,0 +1,183 @@
+/* Old Gold RFC — renders the markdown files in /content into the page.
+   Club admins never need to touch this file: edit the .md files instead. */
+
+(function () {
+  "use strict";
+
+  // ---------- helpers ----------
+  async function getText(path) {
+    const res = await fetch(path, { cache: "no-cache" });
+    if (!res.ok) throw new Error(path + " → HTTP " + res.status);
+    return res.text();
+  }
+
+  function mdToHtml(md) {
+    const html = window.marked.parse(md);
+    return window.DOMPurify ? window.DOMPurify.sanitize(html) : html;
+  }
+
+  function fail(el, err) {
+    console.error(err);
+    el.innerHTML = '<p class="muted">This section couldn’t load. Try refreshing the page.</p>';
+  }
+
+  // <div data-md="/content/home.md"></div>  →  rendered markdown
+  async function renderMarkdownBlocks() {
+    const blocks = document.querySelectorAll("[data-md]");
+    await Promise.all(
+      [...blocks].map(async (el) => {
+        try {
+          el.innerHTML = mdToHtml(await getText(el.dataset.md));
+          el.removeAttribute("aria-busy");
+        } catch (e) {
+          fail(el, e);
+        }
+      })
+    );
+  }
+
+  // ---------- fixtures ----------
+  function parseDate(s) {
+    const m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s.trim());
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+  }
+
+  function fmtDate(d) {
+    return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  }
+
+  function parseResult(s) {
+    const m = /^([WLD])\b\s*(\d+)\s*[-–]\s*(\d+)/i.exec((s || "").trim());
+    return m ? { outcome: m[1].toUpperCase(), us: +m[2], them: +m[3] } : null;
+  }
+
+  // Pulls the season title, the table rows and any trailing notes out of fixtures.md
+  function parseFixtures(md) {
+    const lines = md.replace(/<!--[\s\S]*?-->/g, "").split("\n");
+    const title = (lines.find((l) => /^#\s+/.test(l)) || "").replace(/^#\s+/, "").trim();
+    const rows = [];
+    const notes = [];
+    let headerSeen = false;
+    let tableEnded = false;
+
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (line.startsWith("|")) {
+        const cells = line.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
+        if (!headerSeen) { headerSeen = true; continue; }        // header row
+        if (cells.every((c) => /^:?-{2,}:?$/.test(c))) continue; // separator row
+        const date = parseDate(cells[0] || "");
+        if (!date) continue;
+        const opponent = (cells[1] || "").replace(/\s*\*$/, "");
+        rows.push({
+          date,
+          opponent,
+          conditional: /\*$/.test(cells[1] || ""),
+          venue: cells[2] || "",
+          resultText: cells[3] || "",
+          result: parseResult(cells[3]),
+        });
+      } else if (headerSeen && line) {
+        tableEnded = true;
+      }
+      if (tableEnded && line && !line.startsWith("|")) notes.push(line);
+    }
+    rows.sort((a, b) => a.date - b.date);
+    return { title, rows, notes: notes.join("\n") };
+  }
+
+  function summarize(rows) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const played = rows.filter((r) => r.result);
+    const rec = { W: 0, L: 0, D: 0 };
+    played.forEach((r) => rec[r.result.outcome]++);
+    return {
+      record: rec,
+      played: played.length,
+      last: played[played.length - 1] || null,
+      next: rows.find((r) => !r.result && r.date >= today) || null,
+    };
+  }
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const venueLabel = (v) => (/^away$/i.test(v) ? "@" : "vs");
+  // "vs Boston" / "@ Boston", but just "Playoffs" for if-we-qualify placeholder rows
+  const matchName = (r) => (r.conditional ? esc(r.opponent) : `${venueLabel(r.venue)} ${esc(r.opponent)}`);
+  const outcomeWord = { W: "Win", L: "Loss", D: "Draw" };
+
+  function resultBadge(r) {
+    if (!r.result) return r.resultText ? `<span class="badge">${esc(r.resultText)}</span>` : "";
+    const o = r.result.outcome;
+    return `<span class="badge badge-${o}" title="${outcomeWord[o]}">${o} ${r.result.us}–${r.result.them}</span>`;
+  }
+
+  // Home page: next match / last result / record
+  function renderSeasonCards(el, data) {
+    const s = summarize(data.rows);
+    const next = s.next
+      ? `<p class="card-big">${matchName(s.next)}</p>
+         <p class="muted">${fmtDate(s.next.date)} · ${esc(s.next.venue)}${s.next.conditional ? " · if we qualify" : ""}</p>`
+      : `<p class="card-big">Season complete</p><p class="muted">See you next season</p>`;
+    const last = s.last
+      ? `<p class="card-big">${resultBadge(s.last)}</p>
+         <p class="muted">${matchName(s.last)} · ${fmtDate(s.last.date)}</p>`
+      : `<p class="card-big">—</p><p class="muted">No results posted yet</p>`;
+    const r = s.record;
+    const record = s.played
+      ? `<p class="card-big">${r.W}–${r.L}${r.D ? "–" + r.D : ""}</p>
+         <p class="muted">${esc(data.title || "This season")}${r.D ? " · W–L–D" : " · W–L"}</p>`
+      : `<p class="card-big">—</p><p class="muted">${esc(data.title || "This season")}</p>`;
+
+    el.innerHTML = `
+      <article class="card"><h3>Next match</h3>${next}</article>
+      <article class="card"><h3>Last result</h3>${last}</article>
+      <article class="card"><h3>Record</h3>${record}</article>`;
+    el.removeAttribute("aria-busy");
+  }
+
+  // Fixtures page: full list
+  function renderFixtureList(el, data) {
+    const s = summarize(data.rows);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const items = data.rows
+      .map((r) => {
+        const isNext = s.next && r === s.next;
+        const isPast = r.date < today;
+        const iso = `${r.date.getFullYear()}-${String(r.date.getMonth() + 1).padStart(2, "0")}-${String(r.date.getDate()).padStart(2, "0")}`;
+        const fallback = isNext ? '<span class="badge badge-next">Next</span>' : isPast ? '<span class="badge badge-tba">Score TBA</span>' : "";
+        return `<li class="fixture${isNext ? " is-next" : ""}${r.result ? " is-played" : ""}">
+          <time datetime="${iso}">${fmtDate(r.date)}</time>
+          <span class="opp">${matchName(r)}${r.conditional ? "<sup>*</sup>" : ""}</span>
+          <span class="venue">${esc(r.venue)}</span>
+          <span class="res">${resultBadge(r) || fallback}</span>
+        </li>`;
+      })
+      .join("");
+    el.innerHTML = `
+      <h1>${esc(data.title || "Fixtures")}</h1>
+      <ol class="fixtures">${items}</ol>
+      ${data.notes ? `<div class="notes">${mdToHtml(data.notes)}</div>` : ""}`;
+    el.removeAttribute("aria-busy");
+  }
+
+  async function renderFixtures() {
+    const cards = document.querySelector("[data-season-cards]");
+    const list = document.querySelector("[data-fixture-list]");
+    if (!cards && !list) return;
+    try {
+      const data = parseFixtures(await getText("/content/fixtures.md"));
+      if (cards) renderSeasonCards(cards, data);
+      if (list) renderFixtureList(list, data);
+    } catch (e) {
+      if (cards) fail(cards, e);
+      if (list) fail(list, e);
+    }
+  }
+
+  // ---------- boot ----------
+  document.querySelectorAll("[data-year]").forEach((el) => (el.textContent = new Date().getFullYear()));
+  renderMarkdownBlocks();
+  renderFixtures();
+})();
