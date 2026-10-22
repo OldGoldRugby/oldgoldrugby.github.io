@@ -4,7 +4,7 @@ New players of all experience levels are always welcome. Never played before? Pe
 
 ## Practice
 
-**Tuesdays, 7–9 PM** · Moakley Park, South Boston
+**Tuesdays, 7–9 PM** · East Boston Memorial Park, East Boston
 
 Select Thursdays for tournament prep. Check our [Instagram](https://www.instagram.com/oldgoldrugby/) for the latest.
 
