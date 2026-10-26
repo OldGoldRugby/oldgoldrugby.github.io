@@ -194,3 +194,20 @@ section + section { border-top: 1px solid var(--line); }
 /* ---------- kickoff / location ---------- */
 .fixture .meta { display: block; font-family: var(--body); font-size: 0.85rem; text-transform: none; color: var(--muted); margin-top: 2px; }
 .card-loc { font-size: 0.9rem; margin-top: 2px !important; }
+
+/* ---------- hero: team photo ---------- */
+.hero { display: block; min-height: 0; padding: 0; background: var(--black); overflow: hidden; }
+.hero-img { width: 100%; height: auto; max-height: 86vh; object-fit: cover; object-position: center 75%; }
+.hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(rgba(13,13,14,0), var(--black)); pointer-events: none; }
+.hero-text { position: absolute; top: 0; left: 0; right: 0; z-index: 1; padding-bottom: 80px; background: linear-gradient(180deg, rgba(13,13,14,0.78) 0%, rgba(13,13,14,0.45) 65%, rgba(13,13,14,0) 100%); }
+.hero .hero-text .wrap { padding-top: 36px; padding-bottom: 0; }
+.hero .btn-ghost { background: rgba(13,13,14,0.45); }
+.hero-credit { position: absolute; right: 16px; bottom: 10px; z-index: 2; margin: 0; font-size: 0.8rem; color: #d8d5cf; }
+.hero-credit a { color: #d8d5cf; }
+@media (max-width: 760px) {
+  .hero { display: flex; flex-direction: column; }
+  .hero-text { position: static; order: -1; background: none; padding-bottom: 8px; }
+  .hero .hero-text .wrap { padding-top: 28px; }
+  .hero-img { max-height: none; }
+  .hero::after { height: 40px; }
+}
