@@ -179,3 +179,14 @@ section + section { border-top: 1px solid var(--line); }
   section { padding: 36px 0; }
 }
 .badge-tba { background: transparent; border: 1px dashed var(--line); color: var(--muted); }
+
+/* ---------- photos ---------- */
+.about-photo { margin: 0; }
+.about-photo img { border-radius: var(--radius); width: 100%; aspect-ratio: 3 / 2; object-fit: cover; }
+.about-photo figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 6px; text-align: right; }
+.gallery > p:first-child { color: var(--muted); font-size: 0.95rem; margin-bottom: 16px; }
+.gallery p:has(img) { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0; }
+.gallery p:has(img) a { display: block; overflow: hidden; border-radius: var(--radius); background: var(--panel); }
+.gallery p:has(img) img { width: 100%; aspect-ratio: 3 / 2; object-fit: cover; transition: transform 0.3s ease; }
+.gallery p:has(img) a:hover img { transform: scale(1.04); }
+@media (max-width: 760px) { .gallery p:has(img) { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
