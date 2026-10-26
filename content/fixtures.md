@@ -13,12 +13,12 @@ The home page record, next match, and last result update automatically.
 
 | Date       | Opponent    | Venue   | Result |
 |------------|-------------|---------|--------|
-| 2026-08-29 | Springfield | Away    |        |
-| 2026-09-05 | Ironsides   | Away    |        |
-| 2026-09-19 | Mad River   | Home    |        |
-| 2026-09-26 | Worcester   | Home    |        |
-| 2026-10-03 | Cape Cod    | Home    |        |
-| 2026-10-24 | Boston      | Away    |        |
+| 2026-08-29 | Springfield | Away    | L 0-24  |
+| 2026-09-05 | Ironsides   | Away    | W 53-0  |
+| 2026-09-19 | Mad River   | Home    | W 65-10 |
+| 2026-09-26 | Worcester   | Home    | W 38-0  |
+| 2026-10-03 | Cape Cod    | Home    | W 74-5  |
+| 2026-10-24 | Boston      | Away    | W 44-17 |
 | 2026-10-31 | Playoffs *  | Neutral |        |
 | 2026-11-07 | Finals *    | Neutral |        |
 
