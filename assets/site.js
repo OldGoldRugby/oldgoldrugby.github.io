@@ -59,23 +59,41 @@
     const notes = [];
     let headerSeen = false;
     let tableEnded = false;
+    // Column positions come from the header row, so columns can be added or reordered.
+    // Defaults match the original Date | Opponent | Venue | Result layout.
+    let col = { date: 0, opponent: 1, venue: 2, result: 3, kickoff: -1, location: -1 };
 
     for (const raw of lines) {
       const line = raw.trim();
       if (line.startsWith("|")) {
         const cells = line.replace(/^\||\|$/g, "").split("|").map((c) => c.trim());
-        if (!headerSeen) { headerSeen = true; continue; }        // header row
+        if (!headerSeen) {                                        // header row
+          headerSeen = true;
+          const find = (re) => cells.findIndex((c) => re.test(c));
+          const pick = (re, fallback) => { const i = find(re); return i >= 0 ? i : fallback; };
+          col = {
+            date: pick(/^date/i, 0),
+            opponent: pick(/^(opponent|match|vs)/i, 1),
+            venue: pick(/^(venue|home)/i, 2),
+            result: pick(/^(result|score)/i, 3),
+            kickoff: find(/^(kick|time)/i),
+            location: find(/^(location|address|field|where)/i),
+          };
+          continue;
+        }
         if (cells.every((c) => /^:?-{2,}:?$/.test(c))) continue; // separator row
-        const date = parseDate(cells[0] || "");
+        const cell = (k) => (col[k] >= 0 ? cells[col[k]] || "" : "");
+        const date = parseDate(cell("date"));
         if (!date) continue;
-        const opponent = (cells[1] || "").replace(/\s*\*$/, "");
         rows.push({
           date,
-          opponent,
-          conditional: /\*$/.test(cells[1] || ""),
-          venue: cells[2] || "",
-          resultText: cells[3] || "",
-          result: parseResult(cells[3]),
+          opponent: cell("opponent").replace(/\s*\*$/, ""),
+          conditional: /\*$/.test(cell("opponent")),
+          venue: cell("venue"),
+          kickoff: cell("kickoff"),
+          location: cell("location"),
+          resultText: cell("result"),
+          result: parseResult(cell("result")),
         });
       } else if (headerSeen && line) {
         tableEnded = true;
@@ -105,6 +123,8 @@
   // "vs Boston" / "@ Boston", but just "Playoffs" for if-we-qualify placeholder rows
   const matchName = (r) => (r.conditional ? esc(r.opponent) : `${venueLabel(r.venue)} ${esc(r.opponent)}`);
   const outcomeWord = { W: "Win", L: "Loss", D: "Draw" };
+  const mapLink = (loc) =>
+    `<a href="https://www.google.com/maps/search/?api=1&amp;query=${encodeURIComponent(loc)}" target="_blank" rel="noopener">${esc(loc)}</a>`;
 
   function resultBadge(r) {
     if (!r.result) return r.resultText ? `<span class="badge">${esc(r.resultText)}</span>` : "";
@@ -117,7 +137,8 @@
     const s = summarize(data.rows);
     const next = s.next
       ? `<p class="card-big">${matchName(s.next)}</p>
-         <p class="muted">${fmtDate(s.next.date)} · ${esc(s.next.venue)}${s.next.conditional ? " · if we qualify" : ""}</p>`
+         <p class="muted">${fmtDate(s.next.date)}${s.next.kickoff ? " · " + esc(s.next.kickoff) : ""} · ${esc(s.next.venue)}${s.next.conditional ? " · if we qualify" : ""}</p>
+         ${s.next.location ? `<p class="muted card-loc">${mapLink(s.next.location)}</p>` : ""}`
       : `<p class="card-big">Season complete</p><p class="muted">See you next season</p>`;
     const last = s.last
       ? `<p class="card-big">${resultBadge(s.last)}</p>
@@ -149,7 +170,11 @@
         const fallback = isNext ? '<span class="badge badge-next">Next</span>' : isPast ? '<span class="badge badge-tba">Score TBA</span>' : "";
         return `<li class="fixture${isNext ? " is-next" : ""}${r.result ? " is-played" : ""}">
           <time datetime="${iso}">${fmtDate(r.date)}</time>
-          <span class="opp">${matchName(r)}${r.conditional ? "<sup>*</sup>" : ""}</span>
+          <span class="opp">${matchName(r)}${r.conditional ? "<sup>*</sup>" : ""}${
+            r.kickoff || r.location
+              ? `<small class="meta">${[r.kickoff && esc(r.kickoff), r.location && mapLink(r.location)].filter(Boolean).join(" · ")}</small>`
+              : ""
+          }</span>
           <span class="venue">${esc(r.venue)}</span>
           <span class="res">${resultBadge(r) || fallback}</span>
         </li>`;
