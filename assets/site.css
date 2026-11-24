@@ -211,3 +211,15 @@ section + section { border-top: 1px solid var(--line); }
   .hero-img { max-height: none; }
   .hero::after { height: 40px; }
 }
+
+/* ---------- recruiting ---------- */
+.recruit { background: linear-gradient(180deg, rgba(242,176,33,0.10), rgba(242,176,33,0.02)); border-top: 3px solid var(--gold); }
+.recruit h2 { color: var(--text); }
+.recruit-body { max-width: 760px; font-size: 1.05rem; }
+.recruit-body ul { list-style: none; padding: 0; margin: 0 0 1.4em; }
+.recruit-body li { padding-left: 1.4em; position: relative; margin-bottom: 0.5em; }
+.recruit-body li::before { content: ""; position: absolute; left: 0; top: 0.55em; width: 0.6em; height: 0.6em; background: var(--gold); border-radius: 2px; }
+.recruit-body a[href^="/"] {
+  display: inline-block; font-family: var(--head); text-transform: uppercase; letter-spacing: 0.06em;
+  background: var(--gold); color: #111; padding: 12px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;
+}
