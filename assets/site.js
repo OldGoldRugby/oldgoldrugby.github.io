@@ -139,7 +139,7 @@
       ? `<p class="card-big">${matchName(s.next)}</p>
          <p class="muted">${fmtDate(s.next.date)}${s.next.kickoff ? " · " + esc(s.next.kickoff) : ""} · ${esc(s.next.venue)}${s.next.conditional ? " · if we qualify" : ""}</p>
          ${s.next.location ? `<p class="muted card-loc">${mapLink(s.next.location)}</p>` : ""}`
-      : `<p class="card-big">Season complete</p><p class="muted">See you next season</p>`;
+      : `<p class="card-big">Off-season</p><p class="muted">Next season's schedule coming soon · <a href="/join/">Join us</a></p>`;
     const last = s.last
       ? `<p class="card-big">${resultBadge(s.last)}</p>
          <p class="muted">${matchName(s.last)} · ${fmtDate(s.last.date)}</p>`
