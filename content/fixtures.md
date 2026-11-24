@@ -20,7 +20,6 @@ The home page record, next match, and last result update automatically.
 | 2026-09-26 | Worcester           | Home    |         |                                   | W 38-0  |
 | 2026-10-03 | Cape Cod            | Home    |         |                                   | W 74-5  |
 | 2026-10-24 | Boston              | Away    |         |                                   | W 44-17 |
-| 2026-10-31 | Seacoast (Playoff)  | Away    | 1:00 PM | 3 Cold Springs Road, Dover, NH    |         |
-| 2026-11-07 | Finals *            | Neutral |         |                                   |         |
+| 2026-10-31 | Seacoast (Semifinal) | Away   | 1:00 PM | 3 Cold Springs Road, Dover, NH    | L 25-37 |
 
-\* If we qualify.
+Fall season over: we fell to Seacoast in the semifinal. **Spring 2027 schedule coming soon.** New players welcome, [find out how to join](/join/).
