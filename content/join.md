@@ -1,12 +1,10 @@
-## Join Old Gold
+## Join Old Gold for Spring 2027
 
 New players of all experience levels are always welcome. Never played before? Perfect. Show up to practice, and we'll teach you the game.
 
-## Practice
+## Spring training
 
-**Tuesdays, 7–9 PM** · East Boston Memorial Park, East Boston
-
-Select Thursdays for tournament prep. Check our [Instagram](https://www.instagram.com/oldgoldrugby/) for the latest.
+Spring 2027 training starts soon. Dates and times will be posted here and on our [Instagram](https://www.instagram.com/oldgoldrugby/). We train at East Boston Memorial Park in East Boston.
 
 ## What to bring
 
@@ -16,4 +14,4 @@ Select Thursdays for tournament prep. Check our [Instagram](https://www.instagra
 
 ## Get in touch
 
-Send us a DM on [Instagram](https://www.instagram.com/oldgoldrugby/) or email [oldgoldrugby@gmail.com](mailto:oldgoldrugby@gmail.com) and we'll get you set up.
+Send us a DM on [Instagram](https://www.instagram.com/oldgoldrugby/) or email [oldgoldrugby@gmail.com](mailto:oldgoldrugby@gmail.com), and we'll let you know as soon as spring training is on.
